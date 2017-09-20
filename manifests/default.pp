@@ -1,7 +1,7 @@
 class { '::php':
   ensure       => latest,
   manage_repos => true,
-  fpm          => true,
+  fpm          => false,
   dev          => true,
   composer     => true,
   pear         => true,
@@ -24,7 +24,7 @@ class { 'apache':
 
 apache::vhost { 'joechem.dev':
   servername => 'joechem.dev',
-  ip => '127.0.0.1',
+  ip => '0.0.0.0',
   port    => ['80','8080'],
-  docroot => '/var/www/'
+  docroot => '/var/www/public'
 }
