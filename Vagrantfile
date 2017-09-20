@@ -24,7 +24,7 @@ Vagrant.configure("2") do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 80, host: 8081
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -54,6 +54,7 @@ Vagrant.configure("2") do |config|
     # Not the same package but experienced the same issue.
     sudo apt-get -y update && sudo apt-get install -y software-properties-common vim
 
+    # TODO: Install rk10 and run `make install`
     # Update modulepath for the 'production' environment so puppet can find moudules with the synced folder above
     echo "modulepath = ./modules:$basemodulepath" >> /etc/puppetlabs/code/environments/production/environment.conf
 
