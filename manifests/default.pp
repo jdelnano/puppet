@@ -10,7 +10,7 @@ class { '::php':
             curl => {},
 	    pdo => {},
 	  mysql => {}
-            }
+  }
 }
 ~>
 class { 'apache':
@@ -22,8 +22,15 @@ class { 'apache':
 }
 
 class { '::mysql::server':
-  root_password          => 'strongpassword',
+  root_password          => 'secret',
   remove_default_accounts => true
+}
+
+mysql::db { 'homestead':
+  user => 'joechem',
+  password => 'secret',
+  host => '%',
+  grant => ['SELECT', 'UPDATE', 'CREATE', 'ALTER']
 }
 
 class { '::redis':
