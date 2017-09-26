@@ -33,6 +33,13 @@ mysql::db { 'homestead':
   grant => ['SELECT', 'UPDATE', 'CREATE', 'ALTER']
 }
 
+mysql::db { 'testing':
+  user => 'joechem',
+  password => 'secret',
+  host => '%',
+  grant => ['SELECT', 'UPDATE', 'CREATE', 'ALTER']
+}
+
 class { '::redis':
   bind => '0.0.0.0'
 }
