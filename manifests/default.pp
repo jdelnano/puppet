@@ -47,10 +47,12 @@ class { '::redis':
 
 include apache::mod::prefork
 include apache::mod::php
+include apache::mod::rewrite
 
 apache::vhost { 'joechem.dev':
   servername => 'joechem.dev',
-  ip => '0.0.0.0',
-  port    => '80',
-  docroot => '/var/www/public'
+  ip         => '0.0.0.0',
+  port       => '80',
+  docroot    => '/var/www/public',
+  override   =>  ['All'],
 }
