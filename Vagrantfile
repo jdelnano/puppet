@@ -54,6 +54,7 @@ Vagrant.configure("2") do |config|
     # Not the same package but experienced the same issue.
     sudo apt-get -y update && sudo apt-get install -y software-properties-common vim
 
+    # TODO: Install rk10 and run `make install`
     # Update modulepath for the 'production' environment so puppet can find moudules with the synced folder above
     echo "modulepath = ./modules:$basemodulepath" >> /etc/puppetlabs/code/environments/production/environment.conf
 
