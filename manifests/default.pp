@@ -6,17 +6,13 @@ class { '::php':
   composer     => true,
   pear         => true,
   phpunit      => false,
+  extensions   => {
+            curl => {},
+	    pdo => {},
+	  mysql => {}
+  }
 }
-
-class { '::mysql::server':
-  root_password          => 'strongpassword',
-  remove_default_accounts => true
-}
-
-class { '::redis':
-  bind => '0.0.0.0'
-}
-
+~>
 class { 'apache':
   default_mods  => true,
   default_vhost => false,
@@ -25,12 +21,38 @@ class { 'apache':
   mpm_module    =>  false,
 }
 
+class { '::mysql::server':
+  root_password          => 'secret',
+  remove_default_accounts => true
+}
+
+mysql::db { 'homestead':
+  user => 'joechem',
+  password => 'secret',
+  host => '%',
+  grant => ['SELECT', 'UPDATE', 'CREATE', 'ALTER']
+}
+
+mysql::db { 'testing':
+  user => 'joechem',
+  password => 'secret',
+  host => '%',
+  grant => ['SELECT', 'UPDATE', 'CREATE', 'ALTER']
+}
+
+class { '::redis':
+  bind => '0.0.0.0'
+}
+
+
 include apache::mod::prefork
 include apache::mod::php
+include apache::mod::rewrite
 
 apache::vhost { 'joechem.dev':
   servername => 'joechem.dev',
-  ip => '127.0.0.1',
-  port    => ['80','8080'],
-  docroot => '/var/www/public'
+  ip         => '0.0.0.0',
+  port       => '80',
+  docroot    => '/var/www/public',
+  override   =>  ['All'],
 }
