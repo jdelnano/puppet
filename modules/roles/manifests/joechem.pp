@@ -1,4 +1,4 @@
-class joechem {
+class roles::joechem {
     class { '::php':
       ensure       => latest,
       manage_repos => true,
