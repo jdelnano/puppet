@@ -42,6 +42,7 @@ Vagrant.configure("2") do |config|
   # These are puppet specific mounts, these should not be touched unless you want
   # to update the puppet setup.
   config.vm.synced_folder File.expand_path('./modules', Dir.pwd), "/etc/puppetlabs/code/environments/production/modules", mount_options: ["dmode=777,fmode=777"]
+  config.vm.synced_folder File.expand_path('./vendor', Dir.pwd), "/etc/puppetlabs/code/environments/production/vendor", mount_options: ["dmode=777,fmode=777"]
   config.vm.synced_folder File.expand_path('./manifests', Dir.pwd), "/home/vagrant/manifests", mount_options: ["dmode=777,fmode=777"]
 
   config.vm.provider "virtualbox" do |vb|
@@ -56,8 +57,8 @@ Vagrant.configure("2") do |config|
     sudo apt-get -y update && sudo apt-get install -y software-properties-common vim
 
     # TODO: Install rk10 and run `make install`
-    # Update modulepath for the 'production' environment so puppet can find moudules with the synced folder above
-    echo "modulepath = ./modules:$basemodulepath" >> /etc/puppetlabs/code/environments/production/environment.conf
+    # Update modulepath for the 'production' environment so puppet can find modules with the synced folder above
+    echo 'modulepath = ./modules:./vendor:$basemodulepath' >> /etc/puppetlabs/code/environments/production/environment.conf
 
     # Run puppet!
     sudo /opt/puppetlabs/bin/puppet apply --environment production manifests/default.pp
