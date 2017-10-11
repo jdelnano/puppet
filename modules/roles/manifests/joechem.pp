@@ -30,7 +30,10 @@ class roles::joechem {
     {
         class { '::mysql::server':
           root_password          => 'secret',
-          remove_default_accounts => true
+          remove_default_accounts => true,
+          override_options => {
+            mysqld => { bind-address => '127.0.0.1'} #Allow remote connections
+          },
         }
 
         mysql::db { 'homestead':
@@ -50,7 +53,6 @@ class roles::joechem {
         class { '::redis':
           bind => '0.0.0.0'
         }
-
 
         apache::vhost { 'joechem.dev':
           servername => 'joechem.dev',
