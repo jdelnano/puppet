@@ -1,4 +1,7 @@
 class roles::joechem {
+    package { 'git':
+        ensure => 'installed',
+    }
     class { '::php':
       ensure       => latest,
       manage_repos => true,
@@ -8,9 +11,10 @@ class roles::joechem {
       pear         => true,
       phpunit      => false,
       extensions   => {
-                curl => {},
-                pdo => {},
-              mysql => {}
+          curl => {},
+          pdo => {},
+          mysql => {},
+          mbstring => {},
       }
     }
     ~>
