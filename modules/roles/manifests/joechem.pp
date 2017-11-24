@@ -35,7 +35,7 @@ class roles::joechem {
       servername => "${vhost}",
       ip         => '0.0.0.0',
       port       => '80',
-      docroot    => '/var/www/public',
+      docroot    => '/var/www/joechem/public',
       override   =>  ['All'],
     }
 
