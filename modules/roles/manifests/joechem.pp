@@ -26,7 +26,20 @@ class roles::joechem {
     include apache::mod::php
     include apache::mod::rewrite
 
-    unless $facts['ec2userdata'] 
+    $vhost = $facts['ec2_metadata'] ? {
+      true => 'joechem.io',
+      default => 'joechem.dev'
+    }
+
+    apache::vhost { "${vhost}" :
+      servername => "${vhost}",
+      ip         => '0.0.0.0',
+      port       => '80',
+      docroot    => '/var/www/public',
+      override   =>  ['All'],
+    }
+
+    unless $facts['ec2_metadata'] 
     {
         class { '::mysql::server':
           root_password          => 'secret',
@@ -54,12 +67,5 @@ class roles::joechem {
           bind => '0.0.0.0'
         }
 
-        apache::vhost { 'joechem.dev':
-          servername => 'joechem.dev',
-          ip         => '0.0.0.0',
-          port       => '80',
-          docroot    => '/var/www/public',
-          override   =>  ['All'],
-        }
     }
 }
