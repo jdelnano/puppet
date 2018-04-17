@@ -1,10 +1,17 @@
 class roles::joechem {
+    # WITHOUT MySQL (using RDS with AWS)
+    # Install PHP7.1
     package { 'git':
         ensure => 'installed',
     }
+    class { '::php::globals':
+      php_version => '7.1',
+      config_root => '/etc/php/7.1'
+    }->
     class { '::php':
       ensure       => latest,
       manage_repos => true,
+      package_prefix => 'php7.1-',
       fpm          => true,
       dev          => true,
       composer     => true,
@@ -17,59 +24,72 @@ class roles::joechem {
           mbstring => {},
       }
     }
-    ~>
-    class { 'apache':
-      default_mods  => true,
-      default_vhost => false,
-      # This defaults to 'worker' on debian, setting to false 
-      # allows specifying our own.
-      mpm_module    =>  false,
+
+    # Nginx Config
+    class { 'nginx':
+      manage_repo => true,
+      package_source => 'nginx-mainline'
     }
 
-    include apache::mod::prefork
-    include apache::mod::php
-    include apache::mod::rewrite
-
-    $vhost = $facts['ec2_metadata'] ? {
-      true => 'joechem.io',
-      default => 'joechem.dev'
+    file { "/var/www/":
+      ensure => directory,
+      recurse => true,
+      force => true,
+      require => Package["nginx"],
     }
 
-    apache::vhost { "${vhost}" :
-      servername => "${vhost}",
-      ip         => '0.0.0.0',
-      port       => '80',
-      docroot    => '/var/www/joechem/public',
-      override   =>  ['All'],
+    file { "/var/www/html":
+      ensure => absent,
+      recurse => true,
+      force => true,
     }
 
-    unless $facts['ec2_metadata'] 
-    {
-        class { '::mysql::server':
-          root_password          => 'secret',
-          remove_default_accounts => true,
-          override_options => {
-            mysqld => { bind-address => '127.0.0.1'} #Allow remote connections
-          },
-        }
-
-        mysql::db { 'homestead':
-          user => 'joechem',
-          password => 'secret',
-          host => '%',
-          grant => ['SELECT', 'UPDATE', 'CREATE', 'ALTER']
-        }
-
-        mysql::db { 'testing':
-          user => 'joechem',
-          password => 'secret',
-          host => '%',
-          grant => ['SELECT', 'UPDATE', 'CREATE', 'ALTER']
-        }
-
-        class { '::redis':
-          bind => '0.0.0.0'
-        }
-
+    file { "/etc/nginx/sites-available/default":
+      ensure => absent,
+      force  => true,
     }
-}
+
+    file { "/etc/nginx/sites-enabled/default":
+      ensure => absent,
+      force  => true,
+    }
+
+  nginx::resource::server { $facts['hostname']:
+    ensure                => present,
+    listen_port           => 80,
+    listen_options        => default_server,
+    ipv6_enable           => true,
+    server_name           => [ 'joechem.org', 'www.joechem.org' ],
+    www_root              => '/var/www/joechem/public',
+    index_files           => [ 'index.php', 'index.html', 'index.htm' ],
+    use_default_location  => false,
+ #   raw_append => ['if ( $http_x_forwarded_proto = \'http\' ) { return 302 https://$host$request_uri; }'],
+  }
+
+  nginx::resource::location { "/":
+    ensure            => present,
+    server            => $facts['hostname'],
+    try_files         => [ '$uri', '$uri/', '/index.php?$query_string' ],
+    index_files       => [],
+  }
+
+    nginx::resource::location { "~ \.php$":
+      ensure              => present,
+      server              => $facts['hostname'],
+      try_files           => [ '$uri', '=404' ],
+      index_files         => [],
+      include             => [ 'fastcgi_params' ],
+      location_cfg_append => {
+        fastcgi_split_path_info => '^(.+\.php)(/.+)$',
+        fastcgi_param           => { 'SCRIPT_FILENAME' => '$document_root$fastcgi_script_name' },
+        fastcgi_pass            => 'unix:/run/php/php7.1-fpm.sock',
+        fastcgi_index           => 'index.php'
+    }
+  }
+
+    nginx::resource::location { "~ /\.ht":
+      ensure          => present,
+      server          => $facts['hostname'],
+      location_deny   => ['all'],
+      index_files     => []
+ }
