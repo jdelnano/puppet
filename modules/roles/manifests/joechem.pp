@@ -92,4 +92,5 @@ class roles::joechem {
       server          => $facts['hostname'],
       location_deny   => ['all'],
       index_files     => []
+  }
  }
