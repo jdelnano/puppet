@@ -102,6 +102,7 @@ class roles::joechem {
     mysql::db { 'joechem_master':
       user => 'joechem',
       password => 'secret',
+      dbname => 'joechem_master',
       host => '%',
       grant => ['SELECT', 'UPDATE', 'CREATE', 'ALTER', 'DELETE']
     }
