@@ -97,15 +97,12 @@ class roles::joechem {
     class { '::mysql::server':
       root_password          => 'secret',
       remove_default_accounts => true,
-      override_options => {
-        mysqld => { bind-address => '127.0.0.1'} #Allow remote connections
-      },
     }
 
     mysql::db { 'joechem_master':
       user => 'joechem',
       password => 'secret',
-      host => '127.0.0.1',
+      host => '%',
       grant => ['SELECT', 'UPDATE', 'CREATE', 'ALTER', 'DELETE']
     }
  }
