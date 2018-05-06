@@ -1,6 +1,9 @@
 class roles::joechem {
     # WITHOUT MySQL (using RDS with AWS)
     # Install PHP7.1
+    exec {'apt-update':
+       command => 'sudo apt-get update -y',
+    }
     package { 'git':
         ensure => 'installed',
     }
@@ -94,6 +97,10 @@ class roles::joechem {
       index_files     => []
   }
 
+    exec {'aws':
+       command => 'sudo apt install awscli -y',
+    }
+    
     class { '::mysql::server':
       root_password          => 'secret',
       remove_default_accounts => true,
