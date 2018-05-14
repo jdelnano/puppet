@@ -56,19 +56,25 @@ class roles::joechem {
 
   nginx::resource::server { $facts['hostname']:
     ensure                => present,
+    ssl                   => true,
     listen_port           => 80,
+    ssl_port              => 443,
+    ssl_cert              => '/etc/nginx/ssl/server.crt',
+    ssl_key               => '/etc/nginx/ssl/server.key',
     listen_options        => default_server,
     ipv6_enable           => true,
-    server_name           => [ 'joechem.org', 'www.joechem.org' ],
+    server_name           => [ 'joechem.io', 'www.joechem.io' ],
     www_root              => '/var/www/joechem/public',
     index_files           => [ 'index.php', 'index.html', 'index.htm' ],
     use_default_location  => false,
- #   raw_append => ['if ( $http_x_forwarded_proto = \'http\' ) { return 302 https://$host$request_uri; }'],
+    raw_append => ['if ( $http_x_forwarded_proto = \'http\' ) { return 302 https://$host$request_uri; }'],
   }
 
   nginx::resource::location { "/":
     ensure            => present,
     server            => $facts['hostname'],
+    #ssl               => true,
+    #ssl_only          => true,
     try_files         => [ '$uri', '$uri/', '/index.php?$query_string' ],
     index_files       => [],
   }
@@ -76,6 +82,8 @@ class roles::joechem {
     nginx::resource::location { "~ \.php$":
       ensure              => present,
       server              => $facts['hostname'],
+      #ssl                 => true,
+      #ssl_only            => true,
       try_files           => [ '$uri', '=404' ],
       index_files         => [],
       include             => [ 'fastcgi_params' ],
@@ -90,6 +98,8 @@ class roles::joechem {
     nginx::resource::location { "~ /\.ht":
       ensure          => present,
       server          => $facts['hostname'],
+      ssl             => true,
+      ssl_only        => true,
       location_deny   => ['all'],
       index_files     => []
   }
