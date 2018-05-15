@@ -56,9 +56,9 @@ class roles::joechem {
 
   nginx::resource::server { $facts['hostname']:
     ensure                => present,
-    ssl                   => true,
+#    ssl                   => true,
     listen_port           => 80,
-    ssl_port              => 443,
+#    ssl_port              => 443,
 #    ssl_cert              => '/root/server.crt',
 #    ssl_key               => '/root/server.key',
     listen_options        => default_server,
@@ -98,8 +98,8 @@ class roles::joechem {
     nginx::resource::location { "~ /\.ht":
       ensure          => present,
       server          => $facts['hostname'],
-      ssl             => true,
-      ssl_only        => true,
+ #     ssl             => true,
+ #     ssl_only        => true,
       location_deny   => ['all'],
       index_files     => []
   }
